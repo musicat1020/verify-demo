@@ -1,0 +1,40 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    "https://w3id.org/security/suites/secp256k1recovery-2020/v2"
+  ],
+  "id": "did:candid:0x01issuer",
+  "controller": "did:candid:0x01issuer",
+  "versionId": 1,
+  "created": "2023-03-14T00:00:00.000Z",
+  "updated": "2023-03-15T00:00:00.000Z",
+  "verificationMethod": [
+    {
+      "id": "did:candid:0x01issuer#key-1",
+      "type": "secp256k1",
+      "controller": "did:candid:0x01issuer",
+      "publicKeyMultubase": "0212f8e4c96a2b3a1e2084b1460ab4a078eae1b60a5e13561d010e715e4caca94b"
+    }
+  ],
+  "authentication": [
+    "did:candid:0x01issuer#key-1"
+  ],
+  "assertionMethod": [
+    "did:candid:0x01issuer#key-1"
+  ],
+  "service": [
+    {
+      "type": "InsuranceService",
+      "serviceEndpoint": "https://web3wallet.cci.cathaybc.com/"
+    },
+    {
+      "type": "CarService",
+      "serviceEndpoint": "https://web3wallet.tesla.cathaybc.com/"
+    }
+  ],
+  "proof": {
+    "type": "secp256k1",
+    "creator": "did:candid:0x01issuer#key-1",
+    "signatureValue": "4994a5853e0d0726d1e85670890c33f697dd5ac2ec54eb9579f8f47c9bd2676334001b11edd2a7674c7407381a50f860fab3d2099401d8d22df477fe6767493a"
+  }
+}

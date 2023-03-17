@@ -1,0 +1,37 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "DriverRecordCredential"
+    ],
+    "name": "汽車車體險保戶身份憑證",
+    "description": "國泰汽車車體險保戶身份憑證",
+    "issuer": {
+        "id": "did:candid:0x01issuer",
+        "name": "電動車車聯網"
+    },
+    "validFrom": "2022-09-15T10:52:46+08:00",
+    "validUntil": "2022-10-15T11:52:46+08:00",
+    "credentialSubject": {
+        "id": "did:candid:21Ew...UT5F",
+        "vin": "5YJ3E7EBXKF531146",
+        "duration": 19.22,
+        "mileage": 756,
+        "startTime": "2022-09-15T10:52:46+08:00",
+        "endTime": "2022-09-22T10:52:46+08:00",
+        "safeRiskRate": 0,
+        "lowRiskRate": 0,
+        "mediumRiskRate": 50,
+        "highRiskRate": 50,
+        "speending": 2,
+        "suddenBreak": 2,
+        "suddenAccelerate": 4
+    },
+    "proof": {
+        "type": "EcdsaSecp256k1RecoveryMethod2020",
+        "creator": "did:candid:0x01issuer",
+        "signatureValue": "bf3d9b3a94252e6ba9762f6b6b7f91accc2899874b321d1a2bcd6f3a99ae8859096b604a9ca9bebe6039d7af32308f0e9cdbbe7a5936a409f5e43ede5a257e69"
+    }
+}
