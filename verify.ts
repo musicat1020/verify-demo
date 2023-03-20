@@ -1,13 +1,7 @@
-
-
 import { randomBytes } from 'crypto'
 import secp256k1 from 'secp256k1'
 import sha256 from 'sha256'
-import vc from './vc.json'
-import vp from './vp.json'
-import issuerDidDocument from './issuerDidDocument.json'
-import holderDidDocument from './holderDidDocument.json'
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
 dotenv.config();
 
 const issPubKey = process.env.ISSUER_PUBLIC_KEY
@@ -77,13 +71,13 @@ const verifyDid = (didDoc: any) => {
   let type: string = ''
   let result = false
   const creator = didDoc.proof.creator
-  const auth = didDoc.authentication[0]
-  const vmId = didDoc.verificationMethod[0].id
+  const hasAuth = didDoc.authentication.find((id: string) => id == creator)
+  const hasVmId = didDoc.verificationMethod.find((vm: any) => vm.id == creator)
 
-  //這部分還不太確定，要再了解 get pubKey form id 的流程 
-  if (creator == auth && auth == vmId) {
-    type = didDoc.verificationMethod[0].type
-    pubKey = didDoc.verificationMethod[0].publicKeyMultubase
+  //if creator == authentication == verificationMethod
+  if (hasAuth && hasVmId) {
+    type = hasVmId.type
+    pubKey = hasVmId.publicKeyMultubase
   }
 
   result = verify(didDoc, type, pubKey)
@@ -91,30 +85,26 @@ const verifyDid = (didDoc: any) => {
 }
 
 
-const verifyVc = (vc: any, didDocument: any) => {
+const verifyVc = (vc: any, didDoc: any) => {
   let type = ''
   let pubKey = ''
   let result = false
-  //
-  const assert = didDocument.assertionMethod[0]
+  const creator = vc.proof.creator
+  const hasAssert = didDoc.assertionMethod.find((id: string) => id.includes(creator))
+  const hasVmId = didDoc.verificationMethod.find((vm: any) => vm.id.includes(creator))
 
   //verify vc & verify issuer did
-  didDocument.verificationMethod.forEach((vm: { id: any; type: string; publicKeyMultubase: string }) => {
-    if (vm.id == assert) {
-      type = vm.type
-      pubKey = vm.publicKeyMultubase
-      result = (verify(vc, type, pubKey) && verifyDid(didDocument))
-    }
-
-  });
+  if (hasAssert && hasVmId) {
+    type = hasVmId.type
+    pubKey = hasVmId.publicKeyMultubase
+    result = (verify(vc, type, pubKey) && verifyDid(didDoc))
+  }
 
   return result
 }
 
 //verify holder did -> vp ->(vc 包含issuer did) 
 export const verifyVp = (vp: any, holderDidDocument: any, issuerDidDocument: any) => {
-  // TODO:find did doc via query blockchain ?
-
   const vpCreator = vp.proof.creator
 
   let result = false
@@ -124,27 +114,28 @@ export const verifyVp = (vp: any, holderDidDocument: any, issuerDidDocument: any
   const holderDidVerification = verifyDid(holderDidDocument)
   if (holderDidVerification) {
 
-    holderDidDocument.verificationMethod.forEach((vm: { controller: any; type: string; publicKeyMultubase: string }) => {
-     
-      //這部分邏輯不確定
-      if (vm.controller == vpCreator) {
-        type = vm.type
-        pubKey = vm.publicKeyMultubase
-      }
-    });
+    const hasVmId = holderDidDocument.verificationMethod.find((vm: any) => vm.id.includes(vpCreator))
 
-    const vpVerification = verify(vp, type, pubKey)
-    if (vpVerification) {
-      const vc = vp.verifiableCredential[0]
-      const vcVerification = verifyVc(vc, issuerDidDocument)
-      result = vcVerification
+    if (hasVmId) {
+      type = hasVmId.type
+      pubKey = hasVmId.publicKeyMultubase
+      const vpVerification = verify(vp, type, pubKey)
+
+      if (vpVerification) {
+        for (let v = 0; v < vp.verifiableCredential.length; v++) {
+          const vc = vp.verifiableCredential[v]
+          const vcVerification = verifyVc(vc, issuerDidDocument)
+          result = vcVerification
+          if (result == false) {
+            break
+          }
+
+        }
+      }
+
     }
+
   }
   return result
 }
 
-// generateSeed()
-// signMessage(holderDidDocument, holderPriKey)
-// verifyDid(holderDidDocument)
-// verifyVc(vc, issuerDidDocument)
-// verifyVp(vp, holderDidDocument, issuerDidDocument)
